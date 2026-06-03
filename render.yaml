@@ -1,0 +1,22 @@
+# Render Blueprint Specification for ClinicOS
+# References: https://render.com/docs/blueprints
+
+services:
+  - type: web
+    name: clinicos
+    env: docker
+    # NOTE: Render's Free tier does not support persistent disks.
+    # To deploy on the Free tier, change the plan below to 'free' and comment out or delete the 'disk' block.
+    # Note that without a disk, SQLite database data will reset on every server restart/redeploy.
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /data/clinicos.db
+    
+    # Mount a persistent disk at /data to preserve the SQLite database clinicos.db across deploys/restarts
+    disk:
+      name: clinicos-db
+      mountPath: /data
+      sizeGB: 1

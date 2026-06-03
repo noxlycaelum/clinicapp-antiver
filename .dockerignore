@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+server/node_modules
+client/node_modules
+client/dist
+server/db/*.db
+server/db/clinicos.db
+server/db/clinicos.db-journal
+.git
+.gitignore
+Dockerfile
+render.yaml
+README.md
+LICENCE

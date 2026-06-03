@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_FILE = path.join(__dirname, 'clinicos.db');
+const DB_FILE = process.env.DATABASE_PATH || path.join(__dirname, 'clinicos.db');
 
 let dbInstance = null;
 

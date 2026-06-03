@@ -2,12 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getDb } from './db/db.js';
 import { seed } from './db/seed.js';
 import { AutomationEngine } from './services/automationEngine.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'clinicos_secure_jwt_secret_9876543210';
 
 app.use(cors());
@@ -576,6 +581,14 @@ app.post('/api/automation/simulate-inbound', authenticateToken, async (req, res)
     res.status(500).json({ error: err.message });
   }
 });
+
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`ClinicOS Relational & Secure API Server listening at http://localhost:${PORT}`);
