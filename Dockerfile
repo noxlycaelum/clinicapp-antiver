@@ -1,19 +1,13 @@
 # Stage 1: Build React Client
-FROM node:18-slim AS client-builder
+FROM node:20-slim AS client-builder
 WORKDIR /app/client
 COPY client/package*.json ./
-
-# 1. Run standard install
-RUN npm install
-
-# 2. THE ULTIMATE FIX: Force-install the specific native Linux engine that Vite/Tailwind v4 is looking for!
-RUN npm install @tailwindcss/oxide-linux-x64-gnu --save-optional --forced
-
+RUN npm ci
 COPY client/ ./
 RUN npm run build
 
 # Stage 2: Run Production Server
-FROM node:18-slim
+FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production
 
