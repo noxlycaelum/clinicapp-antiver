@@ -1,0 +1,321 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "username": "receptionist",
+      "name": "Pooja Sharma",
+      "role": "receptionist",
+      "clinicName": "Apex Dental & Skin Care",
+      "clinicType": "Dental & Skin Clinic"
+    },
+    {
+      "id": "u2",
+      "username": "doctor",
+      "name": "Dr. Aditya Verma (MDS)",
+      "role": "doctor",
+      "clinicName": "Apex Dental & Skin Care",
+      "clinicType": "Dental & Skin Clinic"
+    }
+  ],
+  "patients": [
+    {
+      "id": "p1",
+      "name": "Aarav Mehta",
+      "phone": "+91 98234 56789",
+      "email": "aarav.mehta@gmail.com",
+      "gender": "Male",
+      "age": 29,
+      "tags": [
+        "Regular",
+        "Orthodontic"
+      ],
+      "visitHistory": [
+        {
+          "date": "2026-05-10",
+          "reason": "Root Canal Consultation",
+          "notes": "X-ray done. Prescribed pain relief. Advised treatment next week."
+        },
+        {
+          "date": "2026-05-17",
+          "reason": "Root Canal Treatment - Phase 1",
+          "notes": "Pulpectomy completed. Temporary dressing applied."
+        }
+      ],
+      "followUpStatus": "active",
+      "recallIntervalMonths": 6,
+      "createdAt": "2026-05-10T10:15:30Z"
+    },
+    {
+      "id": "p2",
+      "name": "Ananya Iyer",
+      "phone": "+91 91678 12345",
+      "email": "ananya.iyer@yahoo.com",
+      "gender": "Female",
+      "age": 34,
+      "tags": [
+        "Dermatology",
+        "Acne Treatment"
+      ],
+      "visitHistory": [
+        {
+          "date": "2026-04-20",
+          "reason": "Acne Scar Consultation",
+          "notes": "Prescribed topical retinoids and chemical peel preparation."
+        },
+        {
+          "date": "2026-05-18",
+          "reason": "Chemical Peel - Session 1",
+          "notes": "Salicylic acid peel performed. Post-peel sunscreen advised."
+        }
+      ],
+      "followUpStatus": "pending",
+      "recallIntervalMonths": 3,
+      "createdAt": "2026-04-20T11:00:00Z"
+    },
+    {
+      "id": "p3",
+      "name": "Kabir Malhotra",
+      "phone": "+91 99876 54321",
+      "email": "kabir.m@outlook.com",
+      "gender": "Male",
+      "age": 42,
+      "tags": [
+        "Physiotherapy",
+        "Spine Care"
+      ],
+      "visitHistory": [
+        {
+          "date": "2026-05-05",
+          "reason": "Lower Back Pain Assessment",
+          "notes": "L4-L5 compression. Started decompression therapy & core exercises."
+        },
+        {
+          "date": "2026-05-12",
+          "reason": "Physiotherapy Session 2",
+          "notes": "Decreased pain levels. Added electrotherapy."
+        }
+      ],
+      "followUpStatus": "overdue",
+      "recallIntervalMonths": 1,
+      "createdAt": "2026-05-05T09:30:00Z"
+    },
+    {
+      "id": "p4",
+      "name": "Riya Kapoor",
+      "phone": "+91 98333 99999",
+      "email": "riya.kapoor@gmail.com",
+      "gender": "Female",
+      "age": 26,
+      "tags": [
+        "New Patient",
+        "Teeth Whitening"
+      ],
+      "visitHistory": [],
+      "followUpStatus": "none",
+      "recallIntervalMonths": 12,
+      "createdAt": "2026-05-23T14:45:00Z"
+    },
+    {
+      "id": "p5",
+      "name": "Dr. Vikram Sen",
+      "phone": "+91 97654 32109",
+      "email": "vikram.sen@rediffmail.com",
+      "gender": "Male",
+      "age": 58,
+      "tags": [
+        "Senior Citizen",
+        "Dental Crown"
+      ],
+      "visitHistory": [
+        {
+          "date": "2026-05-01",
+          "reason": "Crown Prep & Impression",
+          "notes": "Tooth #46 prepared. Impression sent to lab."
+        }
+      ],
+      "followUpStatus": "active",
+      "recallIntervalMonths": 6,
+      "createdAt": "2026-05-01T10:00:00Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "a1",
+      "patientId": "p1",
+      "doctorName": "Dr. Aditya Verma",
+      "date": "2026-05-24",
+      "timeSlot": "10:30 AM",
+      "reason": "Root Canal Final Obturation",
+      "status": "Completed",
+      "notes": "Obturation finished. Composite build-up done. Patient satisfied.",
+      "createdAt": "2026-05-17T11:30:00Z"
+    },
+    {
+      "id": "a2",
+      "patientId": "p2",
+      "doctorName": "Dr. Aditya Verma",
+      "date": "2026-05-24",
+      "timeSlot": "11:30 AM",
+      "reason": "Acne Progress Checkup",
+      "status": "Confirmed",
+      "notes": "Follow up review for peeling irritation.",
+      "createdAt": "2026-05-18T12:00:00Z"
+    },
+    {
+      "id": "a3",
+      "patientId": "p3",
+      "doctorName": "Dr. Aditya Verma",
+      "date": "2026-05-24",
+      "timeSlot": "04:30 PM",
+      "reason": "Spine Traction Session 3",
+      "status": "Confirmed",
+      "notes": "Adjust decompression machine weight to 18kg.",
+      "createdAt": "2026-05-12T17:00:00Z"
+    },
+    {
+      "id": "a4",
+      "patientId": "p4",
+      "doctorName": "Dr. Aditya Verma",
+      "date": "2026-05-25",
+      "timeSlot": "12:00 PM",
+      "reason": "Teeth Whitening Procedure",
+      "status": "Confirmed",
+      "notes": "Pre-procedure polishing required.",
+      "createdAt": "2026-05-23T15:00:00Z"
+    },
+    {
+      "id": "a5",
+      "patientId": "p5",
+      "doctorName": "Dr. Aditya Verma",
+      "date": "2026-05-23",
+      "timeSlot": "03:00 PM",
+      "reason": "Crown Placement #46",
+      "status": "No-Show",
+      "notes": "Called patient twice, went to voicemail. Reschedule needed.",
+      "createdAt": "2026-05-19T09:00:00Z"
+    }
+  ],
+  "billing": [
+    {
+      "id": "b1",
+      "appointmentId": "a1",
+      "patientId": "p1",
+      "patientName": "Aarav Mehta",
+      "date": "2026-05-24",
+      "treatment": "Root Canal Therapy (Obturation + Composite)",
+      "amount": 4500,
+      "status": "Paid",
+      "paymentMethod": "UPI (GPay)",
+      "receiptNo": "APEX-2026-0814",
+      "createdAt": "2026-05-24T11:00:00Z"
+    },
+    {
+      "id": "b2",
+      "appointmentId": "a2",
+      "patientId": "p2",
+      "patientName": "Ananya Iyer",
+      "date": "2026-05-24",
+      "treatment": "Chemical Peel Progress consultation",
+      "amount": 1200,
+      "status": "Pending",
+      "paymentMethod": "",
+      "receiptNo": "",
+      "createdAt": "2026-05-24T11:45:00Z"
+    },
+    {
+      "id": "b3",
+      "appointmentId": "a5",
+      "patientId": "p5",
+      "patientName": "Dr. Vikram Sen",
+      "date": "2026-05-23",
+      "treatment": "Zirconia Crown Fitting - #46",
+      "amount": 9000,
+      "status": "Pending",
+      "paymentMethod": "",
+      "receiptNo": "",
+      "createdAt": "2026-05-23T15:15:00Z"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "wf_booking",
+      "name": "Booking Confirmation",
+      "triggerEvent": "APPOINTMENT_CREATED",
+      "delayMinutes": 0,
+      "templateText": "Hello *{{patientName}}*,\n\nYour appointment at *{{clinicName}}* has been successfully scheduled! 🎉\n\n📅 *Date:* {{date}}\n⏰ *Time:* {{time}}\n👨‍⚕️ *Doctor:* {{doctorName}}\n📝 *Reason:* {{reason}}\n\nNeed to reschedule? Reply to this message directly. See you soon!",
+      "isActive": true,
+      "category": "instant"
+    },
+    {
+      "id": "wf_reminder",
+      "name": "Pre-Visit Reminder",
+      "triggerEvent": "APPOINTMENT_REMINDER_DUE",
+      "delayMinutes": 120,
+      "templateText": "Hi *{{patientName}}*,\n\nThis is a friendly reminder for your upcoming appointment today at *{{clinicName}}*:\n\n⏰ *Time:* {{time}}\n👨‍⚕️ *Doctor:* {{doctorName}}\n\nPlease try to arrive 10 minutes prior to your slot. See you soon! 😊",
+      "isActive": true,
+      "category": "scheduled"
+    },
+    {
+      "id": "wf_checkout",
+      "name": "Post-Visit Follow-up",
+      "triggerEvent": "VISIT_CHECKOUT",
+      "delayMinutes": 60,
+      "templateText": "Dear *{{patientName}}*,\n\nThank you for visiting *{{clinicName}}* today. We hope you had a comfortable experience! ❤️\n\n💊 *Follow-up Advice:* Keep the area clean and follow the doctor's prescription.\n📞 *Support:* For any emergency discomfort, call us directly at 98765-XXXXX.\n📅 We have marked a tentative follow-up review for you. We will confirm the slot shortly.",
+      "isActive": true,
+      "category": "instant"
+    },
+    {
+      "id": "wf_payment",
+      "name": "Payment Received",
+      "triggerEvent": "PAYMENT_RECEIVED",
+      "delayMinutes": 0,
+      "templateText": "Dear *{{patientName}}*,\n\nThank you! We have received your payment of *₹{{amount}}* for *{{treatment}}* at *{{clinicName}}*.\n\n📄 *Receipt Status:* Mark Paid\n🧾 *Receipt No:* {{receiptNo}}\n\nHave a great day!",
+      "isActive": true,
+      "category": "instant"
+    },
+    {
+      "id": "wf_recall",
+      "name": "Re-engagement Campaign",
+      "triggerEvent": "RECALL_DUE",
+      "delayMinutes": 0,
+      "templateText": "Hello *{{patientName}}*,\n\nIt has been a while since your last check-up at *{{clinicName}}*! 🩺\n\nRegular dental & skin reviews help prevent larger issues down the line. We are offering a complimentary consultation check-up this week for our returning patients!\n\nWould you like us to block a slot for you this Saturday? Reply 'YES' to book! 🌟",
+      "isActive": true,
+      "category": "campaign"
+    }
+  ],
+  "whatsapp_logs": [
+    {
+      "id": "log1",
+      "patientId": "p1",
+      "patientName": "Aarav Mehta",
+      "phone": "+91 98234 56789",
+      "message": "Hello *Aarav Mehta*,\n\nYour appointment at *Apex Dental & Skin Care* has been successfully scheduled! 🎉\n\n📅 *Date:* 2026-05-24\n⏰ *Time:* 10:30 AM\n👨‍⚕️ *Doctor:* Dr. Aditya Verma\n\nNeed to reschedule? Reply to this message directly. See you soon!",
+      "triggerEvent": "APPOINTMENT_CREATED",
+      "status": "Read",
+      "timestamp": "2026-05-17T11:31:12Z",
+      "type": "outbound"
+    },
+    {
+      "id": "log2",
+      "patientId": "p1",
+      "patientName": "Aarav Mehta",
+      "phone": "+91 98234 56789",
+      "message": "Hi *Aarav Mehta*,\n\nThis is a friendly reminder for your upcoming appointment today at *Apex Dental & Skin Care*:\n\n⏰ *Time:* 10:30 AM\n👨‍⚕️ *Doctor:* Dr. Aditya Verma\n\nPlease try to arrive 10 minutes prior to your slot. See you soon! 😊",
+      "triggerEvent": "APPOINTMENT_REMINDER_DUE",
+      "status": "Read",
+      "timestamp": "2026-05-24T08:30:00Z",
+      "type": "outbound"
+    },
+    {
+      "id": "log3",
+      "patientId": "p1",
+      "patientName": "Aarav Mehta",
+      "phone": "+91 98234 56789",
+      "message": "Thank you, doctor, the pain is fully resolved. Will arrive on time for the obturation phase.",
+      "triggerEvent": "INBOUND_REPLY",
+      "status": "Received",
+      "timestamp": "2026-05-24T08:45:22Z",
+      "type": "inbound"
+    }
+  ]
+}
