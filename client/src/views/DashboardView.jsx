@@ -18,9 +18,9 @@ export default function DashboardView({ onSetActiveTab, onRefreshLogs }) {
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const allApts = await api.getAppointments();
       const allPatients = await api.getPatients();
       const allBills = await api.getBilling();
@@ -55,14 +55,14 @@ export default function DashboardView({ onSetActiveTab, onRefreshLogs }) {
     } catch (err) {
       console.error('Error fetching dashboard stats:', err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchDashboardData(true);
     // Poll stats every 5 seconds to show the WhatsApp Delivery status updates!
-    const interval = setInterval(fetchDashboardData, 5000);
+    const interval = setInterval(() => fetchDashboardData(false), 5000);
     return () => clearInterval(interval);
   }, []);
 
