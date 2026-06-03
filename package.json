@@ -2,7 +2,7 @@
   "name": "clinicos-monorepo",
   "version": "1.0.0",
   "private": true,
-  "author": "Ray <smirkingtoast@outlook.com> (https://helloray.vercel.app)",
+  "author": "Ray <sugarcrashycat@outlook.com> (https://helloray.vercel.app)",
   "scripts": {
     "install-all": "npm install && npm install --prefix server && npm install --prefix client",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
