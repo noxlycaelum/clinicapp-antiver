@@ -2,6 +2,7 @@
   "name": "clinicos-monorepo",
   "version": "1.0.0",
   "private": true,
+  "author": "Ray <smirkingtoast@outlook.com> (https://helloray.vercel.app)",
   "scripts": {
     "install-all": "npm install && npm install --prefix server && npm install --prefix client",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
@@ -9,5 +10,22 @@
   },
   "dependencies": {
     "concurrently": "^8.2.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noxlycaelum/clinicapp-antiver"
+  },
+  "keywords": [
+    "clinic management",
+    "healthcare app",
+    "Next.js",
+    "MongoDB",
+    "patient records",
+    "appointment scheduling"
+  ],
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/noxlycaelum/clinicapp-antiver/issues"
+  },
+  "homepage": "https://github.com/noxlycaelum/clinicapp-antiver"
 }
