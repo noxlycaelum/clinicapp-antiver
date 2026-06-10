@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Calendar, Users, IndianRupee, MessageSquare, 
   Settings, Menu, X, PhoneCall, ChevronRight, Send, HelpCircle, 
-  Activity, Sparkles, User, Bell, Smartphone, LogOut
+  Activity, Sparkles, User, Bell, Smartphone, LogOut, UserPlus, Copy
 } from 'lucide-react';
 
 import { api } from './services/api';
@@ -12,6 +12,7 @@ import PatientsView from './views/PatientsView';
 import BillingView from './views/BillingView';
 import AutomationView from './views/AutomationView';
 import LoginView from './views/LoginView';
+import OnboardingView from './views/OnboardingView';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +28,21 @@ export default function App() {
   const [selectedSimPatient, setSelectedSimPatient] = useState('');
   const [simPatientsList, setSimPatientsList] = useState([]);
   const [simText, setSimText] = useState('');
+
+  // Invite modal state
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
+
+  // Capture invite ID from query parameter and store it in localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const inviteClinicId = params.get('invite');
+    if (inviteClinicId) {
+      localStorage.setItem('clinicos_invite_clinic_id', inviteClinicId);
+      // Remove query param from browser URL for cleaner layout
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Check active JWT session on startup
   useEffect(() => {
@@ -109,6 +125,19 @@ export default function App() {
   // Secure redirect overlay
   if (!currentUser) {
     return <LoginView onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  // Clinic onboarding redirect overlay
+  if (currentUser && !currentUser.clinicId) {
+    return (
+      <OnboardingView 
+        currentUser={currentUser} 
+        onOnboardingSuccess={(updatedUser) => {
+          setCurrentUser(updatedUser);
+        }} 
+        onLogout={handleLogout}
+      />
+    );
   }
 
   return (
@@ -220,6 +249,17 @@ export default function App() {
             <span className="text-sm font-bold text-slate-700 uppercase tracking-wider bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg">
               {currentUser?.clinicName || 'Apex Dental & Skin Care'}
             </span>
+            {currentUser?.clinicId && (
+              <button
+                onClick={() => {
+                  setIsInviteModalOpen(true);
+                  setInviteCopied(false);
+                }}
+                className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-teal-200 shadow-xs animate-fade-in"
+              >
+                <UserPlus className="w-4 h-4 text-teal-600" /> Add Admin
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -251,6 +291,10 @@ export default function App() {
             <DashboardView 
               onSetActiveTab={setActiveTab} 
               onRefreshLogs={fetchLogsAndPatients} 
+              onInviteAdmin={() => {
+                setIsInviteModalOpen(true);
+                setInviteCopied(false);
+              }}
             />
           )}
           {activeTab === 'appointments' && (
@@ -409,6 +453,74 @@ export default function App() {
         </div>
 
       </aside>
+
+      {/* Invite Admin Modal overlay */}
+      {isInviteModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 transform scale-100 transition-transform">
+            
+            {/* Header */}
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">Add Desk Admin</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Invite a member to manage {currentUser?.clinicName}</p>
+              </div>
+              <button 
+                onClick={() => setIsInviteModalOpen(false)}
+                className="p-1 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Share this secure onboarding invite link. When they visit this URL and log in or register, they will be granted full administrative access to your clinic desk.
+              </p>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Shareable Invite Link</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${window.location.origin}/?invite=${currentUser?.clinicId}`}
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-600 focus:outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/?invite=${currentUser?.clinicId}`);
+                      setInviteCopied(true);
+                      setTimeout(() => setInviteCopied(false), 2000);
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-white shrink-0 ${
+                      inviteCopied ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-teal-600 hover:bg-teal-700'
+                    }`}
+                  >
+                    {inviteCopied ? 'Copied!' : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-3 bg-teal-50 border border-teal-100 rounded-2xl text-[11px] text-teal-800 leading-relaxed">
+                <strong>Invite Code:</strong> {currentUser?.clinicId}
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsInviteModalOpen(false)}
+                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Close Panel
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
