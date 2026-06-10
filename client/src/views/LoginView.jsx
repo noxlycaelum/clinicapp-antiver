@@ -164,27 +164,6 @@ export default function LoginView({ onLoginSuccess }) {
             </button>
           </form>
 
-          {/* Seeded Credentials Helper Dialog */}
-          {!isRegisterMode && (
-            <div className="mt-6 p-4 bg-teal-900/20 border border-teal-500/20 text-teal-300 rounded-2xl text-[11px] space-y-2 leading-relaxed">
-              <p className="font-bold flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-teal-400" /> Preseeded Demo Logins (ACID SQL):
-              </p>
-              <div className="space-y-1 font-mono text-[10px]">
-                <div className="flex justify-between border-b border-teal-800/40 pb-1">
-                  <span>Email: <strong className="text-white">receptionist@clinicos.com</strong></span>
-                  <span>Password: <strong className="text-white">admin123</strong></span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Email: <strong className="text-white">doctor@clinicos.com</strong></span>
-                  <span>Password: <strong className="text-white">doc123</strong></span>
-                </div>
-              </div>
-              <p className="text-slate-400 text-[9px] italic border-t border-teal-800/40 pt-1 mt-1">
-                Both profiles are preconfigured with patient queue histories.
-              </p>
-            </div>
-          )}
 
         </div>
       </div>
