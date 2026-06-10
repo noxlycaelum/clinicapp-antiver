@@ -40,10 +40,10 @@ export const api = {
 
   // --- AUTH SERVICES ---
 
-  signup: async (username, password, name, clinicName, clinicType) => {
+  signup: async (email, password, name) => {
     const data = await api.request('/api/auth/signup', {
       method: 'POST',
-      body: JSON.stringify({ username, password, name, clinicName, clinicType })
+      body: JSON.stringify({ email, password, name })
     });
     
     if (data.token) {
@@ -53,10 +53,10 @@ export const api = {
     return data;
   },
 
-  login: async (username, password) => {
+  login: async (email, password) => {
     const data = await api.request('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ email, password })
     });
     
     if (data.token) {
@@ -145,5 +145,38 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ patientId, message })
     });
+  },
+
+  // --- CLINIC & DOCTOR MANAGEMENT ---
+
+  createClinic: async (clinicData) => {
+    const data = await api.request('/api/clinics', {
+      method: 'POST',
+      body: JSON.stringify(clinicData)
+    });
+    if (data.user) {
+      api.setUser(data.user);
+    }
+    return data;
+  },
+
+  joinClinic: async (clinicId) => {
+    const data = await api.request('/api/clinics/join', {
+      method: 'POST',
+      body: JSON.stringify({ clinicId })
+    });
+    if (data.user) {
+      api.setUser(data.user);
+    }
+    return data;
+  },
+
+  getPublicClinicName: async (clinicId) => {
+    const data = await api.request(`/api/clinics/public/${clinicId}`);
+    return data.name;
+  },
+
+  getDoctors: async () => {
+    return api.request('/api/doctors');
   }
 };
