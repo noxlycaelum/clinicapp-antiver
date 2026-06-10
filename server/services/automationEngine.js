@@ -11,15 +11,29 @@ export class AutomationEngine {
     try {
       const db = await getDb();
       
-      // Query active workflows for this event
+      if (!payload.clinicId) {
+        console.warn(`[SQL Automation Engine] Cannot trigger event ${triggerEvent}: clinicId is missing in payload.`);
+        return;
+      }
+
+      // Query active workflows for this event and clinic
       const rules = await db.all(
-        'SELECT * FROM workflows WHERE trigger_event = ? AND is_active = 1',
-        [triggerEvent]
+        'SELECT * FROM workflows WHERE trigger_event = ? AND is_active = 1 AND clinic_id = ?',
+        [triggerEvent, payload.clinicId]
       );
 
       if (rules.length === 0) {
-        console.log(`No active SQLite workflow rules found for event: ${triggerEvent}`);
+        console.log(`No active SQLite workflow rules found for event: ${triggerEvent} in clinic ${payload.clinicId}`);
         return;
+      }
+
+      // Look up clinic name if not provided
+      let dbClinicName = payload.clinicName;
+      if (!dbClinicName) {
+        const clinic = await db.get('SELECT name FROM clinics WHERE id = ?', [payload.clinicId]);
+        if (clinic) {
+          dbClinicName = clinic.name;
+        }
       }
 
       for (const rule of rules) {
@@ -28,7 +42,7 @@ export class AutomationEngine {
         // Render variables
         const variables = {
           patientName: payload.patientName || 'Patient',
-          clinicName: payload.clinicName || 'Apex Dental & Skin Care',
+          clinicName: dbClinicName || 'Apex Dental & Skin Care',
           date: payload.date || new Date().toLocaleDateString('en-IN'),
           time: payload.time || 'N/A',
           doctorName: payload.doctorName || 'Dr. Aditya Verma',
@@ -50,8 +64,8 @@ export class AutomationEngine {
 
         // Insert log into SQLite
         await db.run(
-          `INSERT INTO whatsapp_logs (id, patient_id, patient_name, phone, message, trigger_event, status, timestamp, type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO whatsapp_logs (id, patient_id, patient_name, phone, message, trigger_event, status, timestamp, type, clinic_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             logId,
             payload.patientId || null,
@@ -61,7 +75,8 @@ export class AutomationEngine {
             triggerEvent,
             'Sent',
             timestamp,
-            'outbound'
+            'outbound',
+            payload.clinicId
           ]
         );
         
