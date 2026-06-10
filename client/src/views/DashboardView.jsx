@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, IndianRupee, MessageSquare, AlertCircle, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Users, IndianRupee, MessageSquare, AlertCircle, CheckCircle, Clock, ArrowRight, UserPlus } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function DashboardView({ onSetActiveTab, onRefreshLogs }) {
+export default function DashboardView({ onSetActiveTab, onRefreshLogs, onInviteAdmin }) {
   const [stats, setStats] = useState({
     todayTotal: 0,
     completed: 0,
@@ -246,51 +246,75 @@ export default function DashboardView({ onSetActiveTab, onRefreshLogs }) {
           </div>
         </div>
 
-        {/* Actionable Followups & Recalls */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="text-lg font-semibold text-slate-800">Retention Recall Desk</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Automated campaigns for inactive or overdue patients.</p>
-          </div>
+        <div className="flex flex-col gap-6">
+          
+          {/* Actionable Followups & Recalls */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h2 className="text-lg font-semibold text-slate-800">Retention Recall Desk</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Automated campaigns for inactive or overdue patients.</p>
+            </div>
 
-          <div className="p-4 flex-1 space-y-4">
-            {overdueFollowups.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                <CheckCircle className="w-10 h-10 text-emerald-400 mb-2" />
-                <p className="text-sm font-semibold text-slate-700">All caught up!</p>
-                <p className="text-xs text-slate-400">No overdue follow-up recalls flagged.</p>
-              </div>
-            ) : (
-              overdueFollowups.map(p => (
-                <div key={p.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-3 hover:border-teal-200 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm">{p.name}</h4>
-                      <p className="text-xs text-slate-400">{p.phone}</p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      p.followUpStatus === 'overdue' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
-                    }`}>
-                      {p.followUpStatus}
-                    </span>
-                  </div>
-
-                  <div className="text-xs text-slate-500">
-                    Last visit: <span className="font-medium text-slate-700">
-                      {p.visitHistory && p.visitHistory.length > 0 ? p.visitHistory[p.visitHistory.length - 1].date : 'N/A'}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => handleTriggerRecall(p)}
-                    className="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold rounded-lg border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 text-teal-600" /> Send Re-engagement Alert
-                  </button>
+            <div className="p-4 flex-1 space-y-4">
+              {overdueFollowups.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                  <CheckCircle className="w-10 h-10 text-emerald-400 mb-2" />
+                  <p className="text-sm font-semibold text-slate-700">All caught up!</p>
+                  <p className="text-xs text-slate-400">No overdue follow-up recalls flagged.</p>
                 </div>
-              ))
-            )}
+              ) : (
+                overdueFollowups.map(p => (
+                  <div key={p.id} className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-3 hover:border-teal-200 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-slate-800 text-sm">{p.name}</h4>
+                        <p className="text-xs text-slate-400">{p.phone}</p>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        p.followUpStatus === 'overdue' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
+                      }`}>
+                        {p.followUpStatus}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-slate-500">
+                      Last visit: <span className="font-medium text-slate-700">
+                        {p.visitHistory && p.visitHistory.length > 0 ? p.visitHistory[p.visitHistory.length - 1].date : 'N/A'}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => handleTriggerRecall(p)}
+                      className="w-full py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold rounded-lg border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-teal-600" /> Send Re-engagement Alert
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
+
+          {/* Practice Management / Staff Invitation */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3 flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <UserPlus className="w-4 h-4 text-teal-600 shrink-0" /> Practice Administration
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">Manage clinic users & desks</p>
+              <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">
+                Invite receptionists, doctors, or additional administrators to collaborate on this ClinicOS dashboard.
+              </p>
+            </div>
+            
+            <button
+              onClick={onInviteAdmin}
+              className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Generate Invite Link
+            </button>
+          </div>
+
         </div>
 
       </div>

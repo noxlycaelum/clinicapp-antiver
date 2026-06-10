@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { Smartphone, Lock, User, PlusCircle, LogIn, ShieldAlert, Sparkles, Building } from 'lucide-react';
+import { Mail, Lock, User, PlusCircle, LogIn, ShieldAlert, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function LoginView({ onLoginSuccess }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
   // Registration fields
   const [name, setName] = useState('');
-  const [clinicName, setClinicName] = useState('');
-  const [clinicType, setClinicType] = useState('Dental Clinic');
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,23 +17,23 @@ export default function LoginView({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     
-    if (!username || !password) {
-      setError('Please provide both username and password.');
+    if (!email || !password) {
+      setError('Please provide both email address and password.');
       return;
     }
 
     try {
       setLoading(true);
       if (isRegisterMode) {
-        if (!name || !clinicName) {
-          setError('Please provide your name and clinic name.');
+        if (!name) {
+          setError('Please provide your name.');
           setLoading(false);
           return;
         }
-        const data = await api.signup(username, password, name, clinicName, clinicType);
+        const data = await api.signup(email, password, name);
         onLoginSuccess(data.user);
       } else {
-        const data = await api.login(username, password);
+        const data = await api.login(email, password);
         onLoginSuccess(data.user);
       }
     } catch (err) {
@@ -48,10 +46,9 @@ export default function LoginView({ onLoginSuccess }) {
   const handleToggleMode = () => {
     setIsRegisterMode(!isRegisterMode);
     setError('');
-    setUsername('');
+    setEmail('');
     setPassword('');
     setName('');
-    setClinicName('');
   };
 
   return (
@@ -79,13 +76,13 @@ export default function LoginView({ onLoginSuccess }) {
           
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-lg font-bold text-white">
-              {isRegisterMode ? 'Register Clinic Account' : 'Login to Desk'}
+              {isRegisterMode ? 'Register Administrator Account' : 'Login to Desk'}
             </h2>
             <button
               onClick={handleToggleMode}
               className="text-xs text-teal-400 hover:text-teal-300 font-bold transition-colors cursor-pointer hover:underline"
             >
-              {isRegisterMode ? 'Already have account?' : 'Create Clinic Account'}
+              {isRegisterMode ? 'Already have account?' : 'Create Account'}
             </button>
           </div>
 
@@ -115,48 +112,19 @@ export default function LoginView({ onLoginSuccess }) {
                     />
                   </div>
                 </div>
-
-                {/* Clinic Name */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Clinic Name</label>
-                  <div className="relative">
-                    <Building className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Apex Dental & Skin Care"
-                      value={clinicName}
-                      onChange={(e) => setClinicName(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700/60 text-white rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
-                    />
-                  </div>
-                </div>
-
-                {/* Clinic Type */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Specialty Practice</label>
-                  <select
-                    value={clinicType}
-                    onChange={(e) => setClinicType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/60 text-white rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 font-semibold"
-                  >
-                    <option value="Dental Clinic">Dental Clinic (Dentists)</option>
-                    <option value="Skin Clinic">Skin Care (Dermatology)</option>
-                    <option value="Physiotherapy Clinic">Physiotherapy & Spine Care</option>
-                  </select>
-                </div>
               </>
             )}
 
-            {/* Username */}
+            {/* Email Address */}
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Username</label>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Email Address</label>
               <div className="relative">
-                <Smartphone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
-                  type="text"
-                  placeholder={isRegisterMode ? "Choose login username" : "Username: e.g. receptionist"}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  placeholder={isRegisterMode ? "Choose login email address" : "Email: e.g. receptionist@clinicos.com"}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700/60 text-white rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
                 />
               </div>
@@ -186,7 +154,7 @@ export default function LoginView({ onLoginSuccess }) {
                 <div className="animate-spin rounded-full h-4.5 w-4.5 border-t-2 border-b-2 border-white"></div>
               ) : isRegisterMode ? (
                 <>
-                  <PlusCircle className="w-4 h-4" /> Initialize Clinic Desk
+                  <PlusCircle className="w-4 h-4" /> Create Account
                 </>
               ) : (
                 <>
@@ -204,11 +172,11 @@ export default function LoginView({ onLoginSuccess }) {
               </p>
               <div className="space-y-1 font-mono text-[10px]">
                 <div className="flex justify-between border-b border-teal-800/40 pb-1">
-                  <span>Username: <strong className="text-white">receptionist</strong></span>
+                  <span>Email: <strong className="text-white">receptionist@clinicos.com</strong></span>
                   <span>Password: <strong className="text-white">admin123</strong></span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Username: <strong className="text-white">doctor</strong></span>
+                  <span>Email: <strong className="text-white">doctor@clinicos.com</strong></span>
                   <span>Password: <strong className="text-white">doc123</strong></span>
                 </div>
               </div>

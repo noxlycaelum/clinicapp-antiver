@@ -15,12 +15,13 @@ export default function AppointmentsView({ onRefreshLogs }) {
   // Form fields
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState('');
-  const [doctorName, setDoctorName] = useState('Dr. Aditya Verma');
+  const [doctorName, setDoctorName] = useState('');
   const [reason, setReason] = useState('Consultation');
   const [notes, setNotes] = useState('');
   const [newPatientForm, setNewPatientForm] = useState(false);
   const [newPatientName, setNewPatientName] = useState('');
   const [newPatientPhone, setNewPatientPhone] = useState('');
+  const [clinicDoctors, setClinicDoctors] = useState([]);
 
   // 11 Core Indian Clinic Time Slots
   const timeSlots = [
@@ -42,8 +43,21 @@ export default function AppointmentsView({ onRefreshLogs }) {
     }
   };
 
+  const fetchDoctors = async () => {
+    try {
+      const data = await api.getDoctors();
+      setClinicDoctors(data);
+      if (data.length > 0 && !doctorName) {
+        setDoctorName(data[0].name);
+      }
+    } catch (err) {
+      console.error('Failed to fetch clinic doctors:', err);
+    }
+  };
+
   useEffect(() => {
     fetchAppointments();
+    fetchDoctors();
   }, [selectedDate]);
 
   const handlePrevDay = () => {
@@ -67,6 +81,11 @@ export default function AppointmentsView({ onRefreshLogs }) {
     setNewPatientName('');
     setNewPatientPhone('');
     setNotes('');
+    if (clinicDoctors.length > 0) {
+      setDoctorName(clinicDoctors[0].name);
+    } else {
+      setDoctorName('Dr. Aditya Verma');
+    }
   };
 
   const handleCreateAppointment = async (e) => {
@@ -367,9 +386,17 @@ export default function AppointmentsView({ onRefreshLogs }) {
                   onChange={(e) => setDoctorName(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-600"
                 >
-                  <option value="Dr. Aditya Verma">Dr. Aditya Verma (MDS - Dentist)</option>
-                  <option value="Dr. Pooja Sen">Dr. Pooja Sen (MD - Dermatologist)</option>
-                  <option value="Dr. Hari Prasad">Dr. Hari Prasad (BPT - Physiotherapist)</option>
+                  {clinicDoctors.length > 0 ? (
+                    clinicDoctors.map(doc => (
+                      <option key={doc.id} value={doc.name}>{doc.name} ({doc.specialty})</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Dr. Aditya Verma">Dr. Aditya Verma (MDS - Dentist)</option>
+                      <option value="Dr. Pooja Sen">Dr. Pooja Sen (MD - Dermatologist)</option>
+                      <option value="Dr. Hari Prasad">Dr. Hari Prasad (BPT - Physiotherapist)</option>
+                    </>
+                  )}
                 </select>
               </div>
 
