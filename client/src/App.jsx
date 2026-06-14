@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Calendar, Users, IndianRupee, MessageSquare, 
   Settings, Menu, X, PhoneCall, ChevronRight, Send, HelpCircle, 
-  Activity, Sparkles, User, Bell, Smartphone, LogOut, UserPlus, Copy
+  Activity, Sparkles, User, Bell, Smartphone, LogOut, UserPlus, Copy,
+  Briefcase, Shield
 } from 'lucide-react';
 
 import { api } from './services/api';
 import DashboardView from './views/DashboardView';
 import AppointmentsView from './views/AppointmentsView';
 import PatientsView from './views/PatientsView';
+import StaffView from './views/StaffView';
 import BillingView from './views/BillingView';
 import AutomationView from './views/AutomationView';
 import LoginView from './views/LoginView';
@@ -194,6 +196,15 @@ export default function App() {
           </button>
 
           <button 
+            onClick={() => setActiveTab('staff')}
+            className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all cursor-pointer ${
+              activeTab === 'staff' ? 'bg-teal-600 text-white font-bold shadow-teal-600/10 shadow-md' : 'hover:bg-slate-800 hover:text-slate-100'
+            }`}
+          >
+            <Briefcase className="w-4 h-4" /> Staff Directory
+          </button>
+
+          <button 
             onClick={() => setActiveTab('billing')}
             className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all cursor-pointer ${
               activeTab === 'billing' ? 'bg-teal-600 text-white font-bold shadow-teal-600/10 shadow-md' : 'hover:bg-slate-800 hover:text-slate-100'
@@ -305,6 +316,11 @@ export default function App() {
           {activeTab === 'patients' && (
             <PatientsView 
               onRefreshLogs={fetchLogsAndPatients} 
+            />
+          )}
+          {activeTab === 'staff' && (
+            <StaffView 
+              currentUser={currentUser} 
             />
           )}
           {activeTab === 'billing' && (
