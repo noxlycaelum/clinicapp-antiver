@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
@@ -364,6 +365,117 @@ app.get('/api/doctors', authenticateToken, async (req, res) => {
     const db = await getDb();
     const doctors = await db.all('SELECT * FROM doctors WHERE clinic_id = ?', [req.user.clinicId]);
     res.json(doctors);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Staff Management Endpoints
+
+// 1. GET ADMINS/STAFF
+app.get('/api/staff/admins', authenticateToken, async (req, res) => {
+  if (!req.user.clinicId) {
+    return res.status(400).json({ error: 'Clinic context required.' });
+  }
+
+  try {
+    const db = await getDb();
+    const admins = await db.all(
+      'SELECT id, email, name, role FROM users WHERE clinic_id = ?',
+      [req.user.clinicId]
+    );
+    res.json(admins);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. DISASSOCIATE ADMIN FROM CLINIC
+app.delete('/api/staff/admins/:id', authenticateToken, async (req, res) => {
+  if (!req.user.clinicId) {
+    return res.status(400).json({ error: 'Clinic context required.' });
+  }
+
+  const { id } = req.params;
+  if (id === req.user.id) {
+    return res.status(400).json({ error: 'Self-removal from the clinic is not permitted.' });
+  }
+
+  try {
+    const db = await getDb();
+    
+    // Check if target admin exists and belongs to the same clinic
+    const targetAdmin = await db.get('SELECT clinic_id FROM users WHERE id = ?', [id]);
+    if (!targetAdmin) {
+      return res.status(404).json({ error: 'Administrator not found.' });
+    }
+    if (targetAdmin.clinic_id !== req.user.clinicId) {
+      return res.status(403).json({ error: 'You do not have permission to remove this administrator.' });
+    }
+
+    await db.run('UPDATE users SET clinic_id = NULL WHERE id = ?', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. CREATE DOCTOR
+app.post('/api/staff/doctors', authenticateToken, async (req, res) => {
+  if (!req.user.clinicId) {
+    return res.status(400).json({ error: 'Clinic context required.' });
+  }
+
+  const { name, specialty, phone } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Doctor name is required.' });
+  }
+
+  try {
+    const db = await getDb();
+    const doctorId = 'd_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+    
+    await db.run(
+      `INSERT INTO doctors (id, name, specialty, phone, clinic_id) VALUES (?, ?, ?, ?, ?)`,
+      [doctorId, name, specialty || 'General Practitioner', phone || '', req.user.clinicId]
+    );
+
+    const newDoctor = {
+      id: doctorId,
+      name,
+      specialty: specialty || 'General Practitioner',
+      phone: phone || '',
+      clinic_id: req.user.clinicId
+    };
+
+    res.status(201).json(newDoctor);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. DELETE DOCTOR
+app.delete('/api/staff/doctors/:id', authenticateToken, async (req, res) => {
+  if (!req.user.clinicId) {
+    return res.status(400).json({ error: 'Clinic context required.' });
+  }
+
+  const { id } = req.params;
+
+  try {
+    const db = await getDb();
+    
+    // Check if target doctor exists and belongs to the same clinic
+    const targetDoctor = await db.get('SELECT clinic_id FROM doctors WHERE id = ?', [id]);
+    if (!targetDoctor) {
+      return res.status(404).json({ error: 'Doctor not found.' });
+    }
+    if (targetDoctor.clinic_id !== req.user.clinicId) {
+      return res.status(403).json({ error: 'You do not have permission to remove this doctor.' });
+    }
+
+    await db.run('DELETE FROM doctors WHERE id = ? AND clinic_id = ?', [id, req.user.clinicId]);
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
