@@ -178,5 +178,28 @@ export const api = {
 
   getDoctors: async () => {
     return api.request('/api/doctors');
+  },
+
+  addDoctor: async (doctorData) => {
+    return api.request('/api/staff/doctors', {
+      method: 'POST',
+      body: JSON.stringify(doctorData)
+    });
+  },
+
+  removeDoctor: async (id) => {
+    return api.request(`/api/staff/doctors/${id}`, {
+      method: 'DELETE'
+    });
+  },
+
+  getAdmins: async () => {
+    return api.request('/api/staff/admins');
+  },
+
+  removeAdmin: async (id) => {
+    return api.request(`/api/staff/admins/${id}`, {
+      method: 'DELETE'
+    });
   }
 };
