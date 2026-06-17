@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, UserPlus, X, Phone, Briefcase, Mail, Shield, 
-  Trash2, AlertTriangle, UserCheck, ShieldCheck, CheckCircle 
+  Trash2, AlertTriangle, UserCheck, ShieldCheck, CheckCircle, Pencil 
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -18,6 +18,14 @@ export default function StaffView({ currentUser }) {
   const [docSpecialty, setDocSpecialty] = useState('General Practitioner');
   const [customSpecialty, setCustomSpecialty] = useState('');
   const [docPhone, setDocPhone] = useState('');
+
+  // Edit Doctor Form State
+  const [isEditDoctorOpen, setIsEditDoctorOpen] = useState(false);
+  const [editDocId, setEditDocId] = useState('');
+  const [editDocName, setEditDocName] = useState('');
+  const [editDocSpecialty, setEditDocSpecialty] = useState('General Practitioner');
+  const [editCustomSpecialty, setEditCustomSpecialty] = useState('');
+  const [editDocPhone, setEditDocPhone] = useState('');
 
   // Confirmation Modal State
   const [deleteConfirm, setDeleteConfirm] = useState({
@@ -76,6 +84,63 @@ export default function StaffView({ currentUser }) {
       fetchData();
     } catch (err) {
       alert('Failed to add doctor: ' + err.message);
+    }
+  };
+
+  const handleOpenEditDoctor = (doc) => {
+    setEditDocId(doc.id);
+    setEditDocName(doc.name);
+    setEditDocPhone(doc.phone || '');
+    
+    // Check if specialty is one of the dropdown choices
+    const standardSpecialties = [
+      'General Practitioner',
+      'Dermatologist',
+      'Orthodontist',
+      'Pediatrician',
+      'Physiotherapist',
+      'Cardiologist'
+    ];
+    if (standardSpecialties.includes(doc.specialty)) {
+      setEditDocSpecialty(doc.specialty);
+      setEditCustomSpecialty('');
+    } else {
+      setEditDocSpecialty('Custom');
+      setEditCustomSpecialty(doc.specialty);
+    }
+    setIsEditDoctorOpen(true);
+  };
+
+  const handleEditDoctorSubmit = async (e) => {
+    e.preventDefault();
+    if (!editDocName.trim()) {
+      alert('Doctor name is required.');
+      return;
+    }
+
+    const finalSpecialty = editDocSpecialty === 'Custom' ? editCustomSpecialty.trim() : editDocSpecialty;
+    if (editDocSpecialty === 'Custom' && !finalSpecialty) {
+      alert('Please enter a custom specialty.');
+      return;
+    }
+
+    try {
+      await api.updateDoctor(editDocId, {
+        name: editDocName.trim(),
+        specialty: finalSpecialty || 'General Practitioner',
+        phone: editDocPhone.trim()
+      });
+
+      setIsEditDoctorOpen(false);
+      setEditDocId('');
+      setEditDocName('');
+      setEditDocSpecialty('General Practitioner');
+      setEditCustomSpecialty('');
+      setEditDocPhone('');
+      
+      fetchData();
+    } catch (err) {
+      alert('Failed to update doctor: ' + err.message);
     }
   };
 
@@ -249,13 +314,22 @@ export default function StaffView({ currentUser }) {
 
                       {/* Actions */}
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => openDeleteConfirm('doctor', doc)}
-                          className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                          title="Remove Doctor"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEditDoctor(doc)}
+                            className="p-1.5 hover:bg-teal-50 text-slate-400 hover:text-teal-600 rounded-lg transition-colors cursor-pointer"
+                            title="Edit Doctor Details"
+                          >
+                            <Pencil className="w-4.5 h-4.5" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteConfirm('doctor', doc)}
+                            className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                            title="Remove Doctor"
+                          >
+                            <Trash2 className="w-4.5 h-4.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -445,6 +519,104 @@ export default function StaffView({ currentUser }) {
                   className="flex-1 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm cursor-pointer"
                 >
                   Save Clinician
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Doctor Modal */}
+      {isEditDoctorOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+            
+            {/* Header */}
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-800 text-lg">Edit Clinician</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Update practicing doctor credentials and specialty</p>
+              </div>
+              <button 
+                onClick={() => setIsEditDoctorOpen(false)}
+                className="p-1 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleEditDoctorSubmit} className="p-6 space-y-4">
+              
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Doctor Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Dr. Aditya Verma"
+                  value={editDocName}
+                  onChange={(e) => setEditDocName(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-600"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Contact Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +91 98765 43210"
+                  value={editDocPhone}
+                  onChange={(e) => setEditDocPhone(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Clinical Specialty</label>
+                <select
+                  value={editDocSpecialty}
+                  onChange={(e) => setEditDocSpecialty(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-600"
+                >
+                  <option value="General Practitioner">General Practitioner</option>
+                  <option value="Dermatologist">Dermatologist (Skin Care)</option>
+                  <option value="Orthodontist">Orthodontist (Dentistry)</option>
+                  <option value="Pediatrician">Pediatrician (Kids Clinic)</option>
+                  <option value="Physiotherapist">Physiotherapist (Spine/Rehab)</option>
+                  <option value="Cardiologist">Cardiologist (Heart Care)</option>
+                  <option value="Custom">-- Custom Specialty --</option>
+                </select>
+              </div>
+
+              {editDocSpecialty === 'Custom' && (
+                <div className="animate-fade-in">
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Enter Custom Specialty</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Endodontist"
+                    value={editCustomSpecialty}
+                    onChange={(e) => setEditCustomSpecialty(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-teal-600"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="flex gap-2 border-t border-slate-100 pt-4 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditDoctorOpen(false)}
+                  className="flex-1 py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm cursor-pointer"
+                >
+                  Save Changes
                 </button>
               </div>
 

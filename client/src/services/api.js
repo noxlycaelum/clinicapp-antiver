@@ -193,6 +193,13 @@ export const api = {
     });
   },
 
+  updateDoctor: async (id, doctorData) => {
+    return api.request(`/api/staff/doctors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(doctorData)
+    });
+  },
+
   getAdmins: async () => {
     return api.request('/api/staff/admins');
   },
