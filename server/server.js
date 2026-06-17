@@ -23,6 +23,37 @@ app.use(express.json());
 async function bootstrap() {
   const db = await getDb();
   await seed();
+
+  // Seed cancellation workflow for existing clinics if missing
+  try {
+    const clinics = await db.all('SELECT id FROM clinics');
+    for (const clinic of clinics) {
+      const existingCancelWf = await db.get(
+        'SELECT id FROM workflows WHERE clinic_id = ? AND trigger_event = ?',
+        [clinic.id, 'APPOINTMENT_CANCELLED']
+      );
+      if (!existingCancelWf) {
+        const wfId = 'wf_cancelled_' + clinic.id;
+        await db.run(
+          `INSERT INTO workflows (id, name, trigger_event, delay_minutes, template_text, is_active, category, clinic_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            wfId,
+            'Appointment Cancellation',
+            'APPOINTMENT_CANCELLED',
+            0,
+            'Hello *{{patientName}}*,\n\nWe would like to inform you that your appointment with *{{doctorName}}* at *{{clinicName}}* on *{{date}}* at *{{time}}* has been cancelled.\n\nNeed to book another slot? Feel free to reach back out to us. We look forward to serving you in the future! 😊',
+            1,
+            'instant',
+            clinic.id
+          ]
+        );
+        console.log(`Seeded default APPOINTMENT_CANCELLED workflow for clinic: ${clinic.id}`);
+      }
+    }
+  } catch (wfErr) {
+    console.error('Failed to migrate default workflows:', wfErr);
+  }
 }
 
 bootstrap().then(() => {
@@ -273,6 +304,14 @@ app.post('/api/clinics', authenticateToken, async (req, res) => {
         delayMinutes: 0,
         templateText: 'Hello *{{patientName}}*,\n\nIt has been a while since your last check-up at *{{clinicName}}*! 🩺\n\nRegular dental & skin reviews help prevent larger issues down the line. We are offering a complimentary consultation check-up this week for our returning patients!\n\nWould you like us to block a slot for you this Saturday? Reply \'YES\' to book! 🌟',
         category: 'campaign'
+      },
+      {
+        id: 'wf_cancelled_' + clinicId,
+        name: 'Appointment Cancellation',
+        triggerEvent: 'APPOINTMENT_CANCELLED',
+        delayMinutes: 0,
+        templateText: 'Hello *{{patientName}}*,\n\nWe would like to inform you that your appointment with *{{doctorName}}* at *{{clinicName}}* on *{{date}}* at *{{time}}* has been cancelled.\n\nNeed to book another slot? Feel free to reach back out to us. We look forward to serving you in the future! 😊',
+        category: 'instant'
       }
     ];
 
@@ -476,6 +515,50 @@ app.delete('/api/staff/doctors/:id', authenticateToken, async (req, res) => {
 
     await db.run('DELETE FROM doctors WHERE id = ? AND clinic_id = ?', [id, req.user.clinicId]);
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. UPDATE DOCTOR
+app.put('/api/staff/doctors/:id', authenticateToken, async (req, res) => {
+  if (!req.user.clinicId) {
+    return res.status(400).json({ error: 'Clinic context required.' });
+  }
+
+  const { id } = req.params;
+  const { name, specialty, phone } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: 'Doctor name is required.' });
+  }
+
+  try {
+    const db = await getDb();
+    
+    // Check if target doctor exists and belongs to the same clinic
+    const targetDoctor = await db.get('SELECT clinic_id FROM doctors WHERE id = ?', [id]);
+    if (!targetDoctor) {
+      return res.status(404).json({ error: 'Doctor not found.' });
+    }
+    if (targetDoctor.clinic_id !== req.user.clinicId) {
+      return res.status(403).json({ error: 'You do not have permission to edit this doctor.' });
+    }
+
+    await db.run(
+      `UPDATE doctors SET name = ?, specialty = ?, phone = ? WHERE id = ? AND clinic_id = ?`,
+      [name, specialty || 'General Practitioner', phone || '', id, req.user.clinicId]
+    );
+
+    const updatedDoctor = {
+      id,
+      name,
+      specialty: specialty || 'General Practitioner',
+      phone: phone || '',
+      clinic_id: req.user.clinicId
+    };
+
+    res.json(updatedDoctor);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -750,6 +833,20 @@ app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
           time: updated.time_slot,
           doctorName: updated.doctor_name,
           reason: updated.reason + ' (RESCHEDULED)'
+        });
+      }
+
+      // Cancellation Trigger
+      if (updatedStatus === 'Cancelled' && oldApt.status !== 'Cancelled') {
+        await AutomationEngine.trigger('APPOINTMENT_CANCELLED', {
+          clinicId: req.user.clinicId,
+          patientId: patient.id,
+          patientName: patient.name,
+          phone: patient.phone,
+          date: updated.date,
+          time: updated.time_slot,
+          doctorName: updated.doctor_name,
+          reason: updated.reason
         });
       }
     }
